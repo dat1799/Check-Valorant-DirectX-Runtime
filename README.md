@@ -1,119 +1,65 @@
-# Hướng dẫn sửa lỗi DirectX Runtime khi mở Valorant
+# Fix Valorant DirectX Runtime
 
-Script `check-directx.ps1` chạy trực tiếp từ GitHub, không cần tải về máy. Cập nhật: 16/10/2026.
+Sửa lỗi bấm PLAY trong Riot Client thì hiện thông báo "The following component(s) are required to run this program: DirectX Runtime". Cập nhật: 16/10/2026.
 
-## Dấu hiệu và nguyên nhân
+## Cách dùng (3 bước)
 
-Bấm PLAY trong Riot Client thì hiện hộp thoại "The following component(s) are required to run this program: DirectX Runtime", dù đã cài lại game và DirectX.
-
-Nguyên nhân thường gặp là một file DLL của DirectX cũ trong `C:\Windows\System32` hoặc `SysWOW64` đã bị phần mềm khác ghi đè. File vẫn mang chữ ký Microsoft nhưng nội dung đã bị sửa, nên kiểm tra chữ ký báo `HashMismatch`. Game từ chối file này và báo thiếu DirectX.
-
-Cài lại DirectX không sửa được, vì bộ cài thấy file "mới hơn" nên bỏ qua. Phải đổi tên file lỗi trước rồi mới cài lại.
-
-## Chuẩn bị
-
-1. Tải `directx_Jun2010_redist.exe` (DirectX End-User Runtimes June 2010) từ trang Microsoft. 
-```
-https://www.microsoft.com/en-us/download/details.aspx?id=8109
-```
-2. Chạy file vừa tải, ở hộp thoại hỏi nơi giải nén thì gõ `C:\DX`, bấm OK, chọn Yes nếu được hỏi tạo thư mục. Kết quả phải có file `C:\DX\DXSETUP.exe`.
-3. Mở PowerShell bằng quyền admin: nhấn Start, gõ `powershell`, chuột phải chọn **Run as administrator**.
-
-## Bước 1: Chạy kiểm tra
-
-Dán lệnh sau vào PowerShell. Lệnh này chỉ kiểm tra, chưa thay đổi gì trên máy:
+1. Nhấn **Start**, gõ `powershell`, chuột phải vào **Windows PowerShell** và chọn **Run as administrator**.
+2. Dán lệnh sau vào cửa sổ PowerShell rồi bấm Enter:
 
 ```
-irm https://gist.githubusercontent.com/dat1799/150903857de1134ffc2b4e8ba6c75e2e/raw/check-directx.ps1 | iex
+irm "https://gist.githubusercontent.com/dat1799/150903857de1134ffc2b4e8ba6c75e2e/raw/check-directx.ps1?$(Get-Random)" | iex
 ```
 
-Script quét chữ ký mọi file DLL trong System32 và SysWOW64, mất khoảng 5 đến 15 phút. Thanh tiến trình hiện ở đầu cửa sổ. Khi xong, script lưu hai file CSV ra Desktop: `dll-check-all-<tên máy>.csv` (toàn bộ) và `dll-check-problems-<tên máy>.csv` (chỉ file có vấn đề).
+3. Menu hiện ra. Gõ **1** rồi Enter để sửa lỗi tự động, gõ `y` khi được hỏi, chờ chạy xong rồi **khởi động lại máy** và mở Valorant.
 
-## Bước 2: Đọc kết quả
+Nếu quên chọn Run as administrator, công cụ sẽ hỏi để tự mở lại với quyền admin; bấm `y` rồi chọn **Yes** ở hộp thoại Windows.
 
-Chỉ nhóm NGUY HIỂM cần sửa ngay; nếu nhóm này bằng 0 và hai file Valorant đều OK, lỗi không nằm ở file DLL.
+## Các chức năng trong menu
 
-| Mục trong kết quả | Ý nghĩa | Cần làm |
+| Số | Chức năng | Khi nào dùng |
 | --- | --- | --- |
-| NGUY HIỂM (đỏ) | File bị sửa (`HashMismatch`) hoặc chữ ký không hợp lệ | Sửa ở Bước 3 |
-| CẦN XEM LẠI (vàng) | File không có chữ ký | Xem tên và ngày sửa; thường là phần mềm cũ, không bắt buộc sửa |
-| THÔNG TIN (xám) | File có chữ ký hợp lệ của hãng khác (NVIDIA, Intel, Realtek...) | Bình thường, bỏ qua |
-| File Valorant cần: [THIEU] hoặc [LOI] | Thiếu hoặc hỏng `xinput1_3.dll` / `X3DAudio1_7.dll` | Sửa ở Bước 3 |
-| VC++ x64 / x86: [THIEU] | Chưa cài Visual C++ 2015-2022 | Cài cả hai bản x64 và x86 từ trang Microsoft |
+| 1 | Sửa lỗi tự động | Dùng đầu tiên. Kiểm tra file DirectX, đổi tên file lỗi, tự tải và cài lại DirectX gốc, cài Visual C++ nếu thiếu |
+| 2 | Kiểm tra nhanh (~1 phút) | Chỉ muốn xem máy có lỗi không, chưa sửa gì |
+| 3 | Kiểm tra toàn bộ DLL (5-15 phút) | Sửa xong vẫn lỗi, muốn quét mọi file DLL trong Windows |
+| 4 | Sửa file DirectX bị lỗi | Giống bước sửa trong chức năng 1, có hỏi xác nhận |
+| 5 | Cài / sửa Visual C++ 2015-2022 | Kết quả báo thiếu Visual C++ |
+| 6 | Quét virus bằng Windows Defender | Có file bị sửa, nên quét để chắc máy sạch. Quét offline sẽ khởi động lại máy |
+| 7 | Tìm phần mềm nghi đã ghi đè file | Muốn biết phần mềm nào gây lỗi để gỡ, tránh lỗi quay lại |
+| 8 | Quản lý file .bak | Game chạy được rồi thì xóa file .bak; có phần mềm bị lỗi sau khi sửa thì khôi phục |
+| 9 | Sửa file hệ thống Windows (10-30 phút) | Kiểm tra toàn bộ (3) báo có file Windows bị sửa |
+| 0 | Thoát | Thoát và tự xóa file tải về tạm |
 
-Ghi lại ngày sửa (cột Modified) của file bị sửa. Ngày đó giúp tìm phần mềm đã ghi đè file.
+## Nguyên nhân lỗi
 
-## Bước 3: Sửa tự động
+Một file DLL của DirectX cũ trong `C:\Windows\System32` hoặc `SysWOW64` (thường là `X3DAudio1_7.dll`) đã bị phần mềm khác ghi đè. File vẫn mang chữ ký Microsoft nhưng nội dung bị sửa, nên game từ chối và báo thiếu DirectX.
 
-1. Quét virus trước: Windows Security > Virus & threat protection > Scan options > **Microsoft Defender Antivirus (offline scan)** > Scan now. Máy tự khởi động lại và quét khoảng 15 phút.
-2. Mở lại PowerShell quyền admin và dán lệnh:
+Cài lại DirectX bằng cách thông thường không sửa được, vì bộ cài thấy file "mới hơn" nên bỏ qua. Công cụ đổi tên file lỗi thành `.bak` trước rồi mới cài lại, nên file gốc được ghi vào đúng chỗ.
 
-```
-& ([scriptblock]::Create((irm https://gist.githubusercontent.com/dat1799/150903857de1134ffc2b4e8ba6c75e2e/raw/check-directx.ps1))) -Fix -DxSetup "C:\DX\DXSETUP.exe"
-```
+## Đọc kết quả
 
-3. Với mỗi file DirectX bị sửa, script hỏi `Doi ten ...? (y/n)`. Gõ `y` rồi Enter.
-4. Script tự đổi tên file thành `.bak`, cài lại DirectX ở chế độ ẩn, rồi kiểm tra lại. Mỗi file phải báo `[OK]`.
-5. Nếu có file Windows bị sửa, script hỏi có chạy `sfc` và `DISM` không. Gõ `y`; bước này mất 10 đến 30 phút.
-6. Khởi động lại máy.
+| Nhãn | Ý nghĩa |
+| --- | --- |
+| `[OK]` | File hợp lệ, có chữ ký Microsoft |
+| `[LOI]` | File bị sửa hoặc chữ ký không hợp lệ, cần sửa |
+| `[THIEU]` | File hoặc Visual C++ chưa được cài |
+| `[NGUY HIEM]` | (Kiểm tra toàn bộ) file bị sửa, cần sửa ngay |
+| `[CAN XEM LAI]` | (Kiểm tra toàn bộ) file không có chữ ký, thường là phần mềm cũ, không bắt buộc sửa |
+| `[THONG TIN]` | (Kiểm tra toàn bộ) file của hãng khác như NVIDIA, Intel, bình thường |
 
-Sửa nhiều máy một lúc thì thêm `-Force` để script làm hết không hỏi:
-
-```
-& ([scriptblock]::Create((irm https://gist.githubusercontent.com/dat1799/150903857de1134ffc2b4e8ba6c75e2e/raw/check-directx.ps1))) -Fix -Force -DxSetup "C:\DX\DXSETUP.exe"
-```
-
-Script chỉ đổi tên file DirectX cũ. File của Windows được khôi phục bằng `sfc` và `DISM`; file không chữ ký hoặc của hãng khác không bị động đến.
-
-## Bước 4: Sửa thủ công (khi script báo THAT BAI)
-
-Ví dụ dưới đây dùng `X3DAudio1_7.dll`; thay bằng tên file script báo lỗi.
-
-1. Mở Command Prompt quyền admin (Start, gõ `cmd`, chuột phải > Run as administrator).
-2. Đổi tên file:
-
-```
-ren C:\Windows\System32\X3DAudio1_7.dll X3DAudio1_7.dll.bak
-```
-
-3. Nếu báo `Access is denied`, lấy quyền rồi chạy lại lệnh `ren`:
-
-```
-takeown /f C:\Windows\System32\X3DAudio1_7.dll /a
-icacls C:\Windows\System32\X3DAudio1_7.dll /grant *S-1-5-32-544:F
-```
-
-4. Vào `C:\DX`, chuột phải `DXSETUP.exe` > Run as administrator, cài như bình thường.
-5. Kiểm tra lại trong PowerShell, dòng `Status` phải là `Valid`:
-
-```
-Get-AuthenticodeSignature C:\Windows\System32\X3DAudio1_7.dll | fl
-```
-
-File nằm trong `SysWOW64` thì làm y hệt, chỉ đổi đường dẫn.
-
-## Bước 5: Kiểm tra lại và dọn dẹp
-
-1. Chạy lại lệnh ở Bước 1. Nhóm NGUY HIỂM phải bằng 0, hai file Valorant phải báo `[OK]`.
-2. Mở Riot Client và bấm PLAY.
-3. Game chạy được thì xóa các file `.bak` (danh sách trong `dll-renamed-<tên máy>.csv` trên Desktop).
-4. Tìm phần mềm đã ghi đè file để gỡ, tránh lỗi quay lại. Lệnh dưới liệt kê phần mềm cài vào ngày sửa file (thay `20261002` bằng ngày ghi ở Bước 2, dạng năm-tháng-ngày):
-
-```
-Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue | Where-Object { $_.InstallDate -eq '20261002' } | Select-Object DisplayName, Publisher, InstallDate
-```
-
-Nếu không thấy gì đáng ngờ, nguyên nhân thường là chương trình chạy trực tiếp không cần cài (bản crack, mod, công cụ tải về). Xem thư mục Downloads sắp theo ngày.
-
-**Khôi phục:** nếu sau khi sửa có phần mềm bị lỗi, đổi file `.bak` tương ứng về tên cũ.
-
-## Xử lý sự cố thường gặp
+## Xử lý sự cố
 
 | Hiện tượng | Cách xử lý |
 | --- | --- |
-| `irm` báo 404 hoặc không tải được | Kiểm tra repo đang Public, file `check-directx.ps1` nằm ở thư mục gốc, nhánh là `main` |
-| `Che do -Fix can quyen admin` | Mở lại PowerShell bằng Run as administrator |
-| Sau DXSETUP vẫn báo `[THIEU]` | Kiểm tra lại `E:\DX\DXSETUP.exe` có tồn tại; chạy DXSETUP thủ công bằng quyền admin |
-| Sau sửa vẫn báo `HashMismatch` | Có phần mềm đang ghi đè lại file: quét virus, gỡ phần mềm nghi ngờ (Bước 5), rồi sửa lại |
-| Không có file lỗi nhưng game vẫn báo DirectX Runtime | Cài Visual C++ x64 và x86, cập nhật driver card đồ họa, Repair game trong Riot Client |
-| Vẫn không được | Dùng Process Monitor (lọc Process Name chứa VALORANT) để xem file game tìm trước khi báo lỗi, hoặc gửi hai file CSV cho hỗ trợ Riot |
+| `irm` báo 404 hoặc không tải được | Kiểm tra kết nối mạng; chép lại đúng nguyên lệnh ở bước 2 |
+| Cửa sổ PowerShell tự tắt | Mở PowerShell trước rồi mới dán lệnh, không chạy lệnh qua Win + R |
+| Không tự tải được DirectX | Tải `directx_Jun2010_redist.exe` từ trang Microsoft, giải nén ra một thư mục (vd `E:\DX`), rồi nhập đường dẫn `E:\DX\DXSETUP.exe` khi công cụ hỏi |
+| Quét virus báo không dùng được Defender | Máy đang dùng phần mềm diệt virus khác; quét bằng phần mềm đó |
+| Sửa xong vẫn báo `[LOI]` | Có phần mềm đang ghi đè lại file: quét virus (6), tìm và gỡ phần mềm nghi ngờ (7), rồi chạy lại chức năng 1 |
+| Không có file lỗi nhưng game vẫn báo DirectX Runtime | Cập nhật driver card đồ họa, Repair game trong Riot Client, rồi chụp màn hình kết quả gửi hỗ trợ Riot |
+
+## Lưu ý an toàn
+
+Công cụ chạy bằng quyền admin và chỉ tải DirectX, Visual C++ từ trang chính thức của Microsoft. Nó chỉ đổi tên các file DirectX cũ (có thể khôi phục ở chức năng 8); file của Windows được sửa bằng công cụ có sẵn `sfc` và `DISM`, file của hãng khác không bị động đến.
+
+Link công cụ nằm trong một secret gist: không ai tìm thấy nếu không có link, nhưng ai có link đều chạy và xem được, nên chỉ gửi cho người cần dùng.
