@@ -24,7 +24,7 @@ https://www.microsoft.com/en-us/download/details.aspx?id=8109
 Dán lệnh sau vào PowerShell. Lệnh này chỉ kiểm tra, chưa thay đổi gì trên máy:
 
 ```
-irm https://raw.githubusercontent.com/dat1799/Check-Valorant-DirectX-Runtime/main/check-directx.ps1 | iex
+irm https://gist.githubusercontent.com/dat1799/150903857de1134ffc2b4e8ba6c75e2e/raw/check-directx.ps1 | iex
 ```
 
 Script quét chữ ký mọi file DLL trong System32 và SysWOW64, mất khoảng 5 đến 15 phút. Thanh tiến trình hiện ở đầu cửa sổ. Khi xong, script lưu hai file CSV ra Desktop: `dll-check-all-<tên máy>.csv` (toàn bộ) và `dll-check-problems-<tên máy>.csv` (chỉ file có vấn đề).
@@ -49,7 +49,7 @@ Ghi lại ngày sửa (cột Modified) của file bị sửa. Ngày đó giúp t
 2. Mở lại PowerShell quyền admin và dán lệnh:
 
 ```
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/dat1799/Check-Valorant-DirectX-Runtime/main/check-directx.ps1))) -Fix -DxSetup "C:\DX\DXSETUP.exe"
+& ([scriptblock]::Create((irm https://gist.githubusercontent.com/dat1799/150903857de1134ffc2b4e8ba6c75e2e/raw/check-directx.ps1))) -Fix -DxSetup "C:\DX\DXSETUP.exe"
 ```
 
 3. Với mỗi file DirectX bị sửa, script hỏi `Doi ten ...? (y/n)`. Gõ `y` rồi Enter.
@@ -60,7 +60,7 @@ Ghi lại ngày sửa (cột Modified) của file bị sửa. Ngày đó giúp t
 Sửa nhiều máy một lúc thì thêm `-Force` để script làm hết không hỏi:
 
 ```
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/dat1799/Check-Valorant-DirectX-Runtime/main/check-directx.ps1))) -Fix -Force -DxSetup "C:\DX\DXSETUP.exe"
+& ([scriptblock]::Create((irm https://gist.githubusercontent.com/dat1799/150903857de1134ffc2b4e8ba6c75e2e/raw/check-directx.ps1))) -Fix -Force -DxSetup "C:\DX\DXSETUP.exe"
 ```
 
 Script chỉ đổi tên file DirectX cũ. File của Windows được khôi phục bằng `sfc` và `DISM`; file không chữ ký hoặc của hãng khác không bị động đến.
